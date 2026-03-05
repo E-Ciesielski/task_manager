@@ -9,6 +9,9 @@ import AppLayout from './AppLayout';
 import Dashboard from './Dashboard';
 import NewTask from './NewTask';
 import NewProject from './NewProject';
+import AuthLayout from './AuthLayout';
+import Login from './Login';
+import Register from './Register';
 
 const darkTheme = createTheme({
   palette: {
@@ -23,6 +26,10 @@ createRoot(document.getElementById('root')!).render(
       <CssBaseline />
       <BrowserRouter>
         <Routes>
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
           <Route element={<AppLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="/new-task" element={<NewTask />} />
