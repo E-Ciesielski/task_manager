@@ -1,10 +1,12 @@
-import { Box, Button, Grid, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
+import { Box, Button, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { useState } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigate } from "react-router";
 import AddIcon from '@mui/icons-material/Add';
 
 export default function AppLayout() {
     const [projects, setProjects] = useState([{ id: 0, name: 'Task manager' }, { id: 1, name: 'Fitness web app' }, { id: 2, name: 'Predictions' }])
+    const navigate = useNavigate();
+
     return (
         <Grid container>
             <Grid size={2}>
@@ -41,7 +43,9 @@ export default function AppLayout() {
                             >
                                 Projects
                             </Typography>
-                            <AddIcon />
+                            <IconButton onClick={() => navigate("/new-project")}>
+                                <AddIcon aria-label="add project" />
+                            </IconButton>
                         </Box>
                         <List>
                             {projects.map(project => (
