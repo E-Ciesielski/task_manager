@@ -10,8 +10,7 @@ from auth import authenticate_user, create_access_token, get_current_user, \
     get_password_hash, get_user
 from config import settings
 from database import get_db_session, Base, engine
-from schemas import Token, User, RegisterUser
-
+from schemas import Token, User, RegisterUser, ProjectCreate, Project, Task, TaskCreate, ProjectDetail
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -49,8 +48,46 @@ async def register_user(data: RegisterUser, db: Session = Depends(get_db_session
     db.refresh(new_user)
     return {"email": new_user.email}
 
-# @app.get("/users/me/items/")
-# async def read_own_items(
-#     current_user: Annotated[User, Depends(get_current_user)],
-# ):
-#     return [{"item_id": "Foo", "owner": current_user.email}]
+@app.get("/api/projects", status_code=status.HTTP_200_OK, response_model=list[Project])
+async def get_projects(db: Session = Depends(get_db_session), user: User = Depends(get_current_user)):
+    projects = db.query(models.Project).filter(models.Project.user == user).all()
+    return projects
+
+@app.get("/api/projects/{project_id}", status_code=status.HTTP_200_OK, response_model=ProjectDetail)
+async def get_project(project_id: int, db: Session = Depends(get_db_session), user: User = Depends(get_current_user)):
+    project = db.query(models.Project).filter(models.Project.user == user, models.Project.id == project_id).first()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+@app.post("/api/projects", status_code=status.HTTP_201_CREATED, response_model=Project)
+async def create_project(data: ProjectCreate, db: Session = Depends(get_db_session), user: User = Depends(get_current_user)):
+    project = models.Project(name=data.name, description=data.description, user=user)
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+    return project
+
+@app.delete("/api/projects/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(project_id: int, db: Session = Depends(get_db_session), user: User = Depends(get_current_user)):
+    project = db.query(models.Project).filter(models.Project.id == project_id, models.Project.user == user).first()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    db.delete(project)
+    db.commit()
+
+@app.post("/api/tasks", status_code=status.HTTP_201_CREATED, response_model=Task)
+async def create_task(data: TaskCreate, db: Session = Depends(get_db_session), user: User = Depends(get_current_user)):
+    project = db.query(models.Project).filter(models.Project.user == user, models.Project.id == data.project_id).first()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    task = models.Task(**data.model_dump())
+
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+
+    return task
+
+
+
