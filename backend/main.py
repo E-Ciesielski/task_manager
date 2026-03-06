@@ -12,6 +12,7 @@ from config import settings
 from database import get_db_session, Base, engine
 from schemas import Token, User, RegisterUser
 
+
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 

@@ -22,7 +22,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 def verify_password(plain_password, hashed_password):
     return password_hash.verify(plain_password, hashed_password)
 
-
 def get_password_hash(password):
     return password_hash.hash(password)
 
@@ -47,7 +46,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
-
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     credentials_exception = HTTPException(
