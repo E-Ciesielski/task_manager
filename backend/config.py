@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "secret key"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
-    DATABASE_CONN_URL = "sqlite:///./task.db"
+    DATABASE_CONN_URL: str = "sqlite:///./task.db"
 
     model_config = SettingsConfigDict(env_file=".env")
 
