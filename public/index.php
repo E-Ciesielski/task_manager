@@ -1,12 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-     <link rel="stylesheet" href="./styles.css">
-</head>
-<body>
-    <h1>Hello</h1>
-</body>
-</html>
+<?php
+spl_autoload_register(function($className) {
+    $className = __DIR__ . '/../src/' . lcfirst(str_replace('\\', '/', $className)) . '.php';
+    require $className;
+});
+
+use App\Router;
+use App\Controller\ProjectController;
+
+$requestUri = $_SERVER['REQUEST_URI'];
+$router = new Router();
+
+$router->register([
+    ['/', ProjectController::class, 'index']
+]);
+
+$router->resolve($requestUri);
