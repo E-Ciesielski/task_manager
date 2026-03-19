@@ -3,23 +3,37 @@
 namespace App;  
 
 class Router {
-    private array $routes;
+    private array $routes = [];
 
-    public function __construct() {
-        $this->routes = [];
+    public function __construct() {}
+
+    public function register(string $uri, array $methods, string $controller, string $action): self {
+        $handler = [new $controller, $action];
+        $methods = array_map(fn($item) => strtoupper($item), $methods);
+
+        $this->routes[] = ['uri' => $uri, 'methods' => $methods, 'handler' => $handler];
+        return $this;
     }
 
-    public function register(array $routes): void {
-        $this->routes = $routes;
-    }
+    public function resolve(string $uri, string $method): void {
+        $method = strtoupper($method);
+        $uri = explode('?', $uri)[0];
 
-    public function resolve($uri): void {
         foreach($this->routes as $route) {
-            if($route[0] === $uri) {
-                call_user_func([new $route[1], $route[2]]);
-                return;
+            if($route['uri'] === $uri) {
+                if(in_array($method, $route['methods'])) {
+                    call_user_func($route['handler']);
+                    return;
+                }
+                else {
+                    $allowed = implode(' ', $route['methods']);
+
+                    header('http/1.1 405 Method Not Allowed');
+                    header('Allow: ' . $allowed);
+                    return;
+                }
             }
         }
-        echo 'route not found';
+        header('http/1.1 404 Page Not Found');
     }
 }

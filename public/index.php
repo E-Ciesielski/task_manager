@@ -7,13 +7,11 @@ spl_autoload_register(function($className) {
 use App\Router;
 use App\Controller\ProjectController;
 
-$requestUri = $_SERVER['REQUEST_URI'];
 $router = new Router();
 
-$router->register([
-    ['/', ProjectController::class, 'index'],
-    ['/new', ProjectController::class, 'store']
-]);
+$router->register('/', ['get'], ProjectController::class, 'index')
+    ->register('/new', ['get', 'post'], ProjectController::class, 'store');
 
-$router->resolve($requestUri);
+
+$router->resolve($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 
