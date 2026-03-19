@@ -1,3 +1,13 @@
+<ul>
+    <?php 
+        $errors = $props['errors'] ?? [];
+        foreach($errors as $key => $error): 
+    ?>
+        <li>
+            <?= $key . ' => ' . $error ?>
+        </li>
+    <?php endforeach ?>
+</ul>
 <form method="post">
     <div>
         <label for="name">Name</label>
