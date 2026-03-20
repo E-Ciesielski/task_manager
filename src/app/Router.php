@@ -2,6 +2,8 @@
 
 namespace App;  
 
+use App\Response;
+
 class Router {
     private array $routes = [];
 
@@ -15,25 +17,22 @@ class Router {
         return $this;
     }
 
-    public function resolve(string $uri, string $method): void {
+    public function resolve(string $uri, string $method): Response {
         $method = strtoupper($method);
         $uri = explode('?', $uri)[0];
 
         foreach($this->routes as $route) {
             if($route['uri'] === $uri) {
                 if(in_array($method, $route['methods'])) {
-                    call_user_func($route['handler']);
-                    return;
+                    return call_user_func($route['handler']);
+                    
                 }
                 else {
                     $allowed = implode(' ', $route['methods']);
-
-                    header('http/1.1 405 Method Not Allowed');
-                    header('Allow: ' . $allowed);
-                    return;
+                    return new Response(405, null, ['Allow: ' => $allowed]);
                 }
             }
         }
-        header('http/1.1 404 Page Not Found');
+        return new Response(404);
     }
 }

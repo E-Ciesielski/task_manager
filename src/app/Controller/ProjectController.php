@@ -4,16 +4,17 @@ namespace App\Controller;
 use App\Database;
 use App\Validator;
 use App\View;
+use App\Response;
 
 class ProjectController {
-    public function index(): void {
+    public function index(): Response {
         $db = Database::getDb();
         $stmt = $db->query('SELECT * FROM projects');
         $projects = $stmt->fetchAll();
-        (new View('project/index.php', ['projects' => $projects]))->render();
+        return new Response(200, new View('project/index.php', ['projects' => $projects]));
     }
 
-    public function store(): void {
+    public function store(): Response {
         $method = $_SERVER['REQUEST_METHOD'];
         if($method === 'POST') {
             $name = $_POST['name'];
@@ -24,8 +25,7 @@ class ProjectController {
             $validator->validate($description, 'description', [Validator::required(), Validator::maxLength(1000)]);
             
             if(!$validator->isValid()) {
-                (new View('project/store.php', ['errors' => $validator->getErrors()]))->render();
-                return;
+                return new Response(400,new View('project/store.php', ['errors' => $validator->getErrors()]));
             }
 
             $db = Database::getDb();
@@ -33,8 +33,8 @@ class ProjectController {
             $prep->execute([$name, $description]);
 
             header('Location: /');
-            return;
+            return new Response(304, null, ['Location: ' => '/']);
         }
-        (new View('project/store.php'))->render();
+        return new Response(200, new View('project/store.php'));
     }
 }

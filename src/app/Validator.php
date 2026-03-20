@@ -9,7 +9,6 @@ class Validator {
     }
 
     public function validate(string $val, string $name, array $validators): void {
-        $this->errors[$name] = [];
         foreach($validators as $validator) {
             $reflectionClosure = new \ReflectionFunction($validator);
             if(!$validator($val)) {
