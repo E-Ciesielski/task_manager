@@ -3,13 +3,14 @@ namespace App\Controller;
 
 use App\Database;
 use App\Validator;
+use App\View;
 
 class ProjectController {
     public function index(): void {
         $db = Database::getDb();
         $stmt = $db->query('SELECT * FROM projects');
         $projects = $stmt->fetchAll();
-        $this->render('project/index.php', ['projects' => $projects]);
+        (new View('project/index.php', ['projects' => $projects]))->render();
     }
 
     public function store(): void {
@@ -23,7 +24,7 @@ class ProjectController {
             $validator->validate($description, 'description', [Validator::required(), Validator::maxLength(1000)]);
             
             if(!$validator->isValid()) {
-                $this->render('project/store.php', ['errors' => $validator->getErrors()]);
+                (new View('project/store.php', ['errors' => $validator->getErrors()]))->render();
                 return;
             }
 
@@ -34,12 +35,6 @@ class ProjectController {
             header('Location: /');
             return;
         }
-        $this->render('project/store.php');
-    }
-
-    private function render(string $view, array $props = []): void {
-        require __DIR__ . '/../View/header.php';  
-        require __DIR__ . '/../View/' . $view;  
-        require __DIR__ . '/../View/footer.php';  
+        (new View('project/store.php'))->render();
     }
 }
